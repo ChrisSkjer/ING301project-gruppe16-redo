@@ -116,6 +116,7 @@ class SmartHouse:
         room = Room(room_size, floor, room_name)
         floor.rooms.append(room)
         
+        return room
 
 
     def get_floors(self):
@@ -150,7 +151,7 @@ class SmartHouse:
         rooms = self.get_rooms()
         areas = []
         for room in rooms:
-            areas.extend(room.area)
+            areas.append(room.area)
         
         return sum(areas)
 
@@ -180,10 +181,13 @@ class SmartHouse:
         This method retrieves a device object via its id.
         """
         devices = self.get_devices
+        the_device = None
 
         for device in devices:
             if device.id == device_id:
                 the_device = device
 
+        
+        
         return the_device
 
