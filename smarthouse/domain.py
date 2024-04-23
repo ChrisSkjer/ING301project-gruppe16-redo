@@ -28,11 +28,15 @@ class Sensor(Device):
         super().__init__(id, supplier, device_type, model_name, room, name)
         self.unit = unit
         self.measurments = []
-        self.last_measurment = None
-
+        
     def is_sensor(self):
         return True
     
+    def last_measurement(self):
+        if len(self.measurments) > 0:
+            return self.measurments[-1]
+        else:
+            return None
     
     
 class Actuator(Device):
@@ -67,9 +71,14 @@ class ActuatorWithSensor(Device):
     def turn_on(self, target_value = None):
         if target_value is None:
             self.actuator_state = True
+        elif target_value:
+            self.actuator_state = True
 
-    def turn_of(self):
+    def turn_off(self):
         self.actuator_state = False
+    
+    def is_active(self):
+        return self.actuator_state
 
 
 class Floor:
@@ -199,6 +208,6 @@ class SmartHouse:
                 the_device = device
 
         
-        
         return the_device
+
 

@@ -31,7 +31,7 @@ humSenor = Sensor("3d87e5c0-8716-4b0b-9c67-087eaaed7b45", "AetherCorp", "Humidit
 smartOven1 = Actuator("8d4e4c98-21a9-4d1e-bf18-523285ad90f6", "AetherCorp", "Smart Oven", "Pheonix HEAT 333")
 garageDoor = Actuator("9a54c1ec-0cb5-45a7-b20d-2a7349f1b132", "MythicalTech", "Automatic Garage Door", "Guardian Lock 9000")
 smartOven2 = Actuator("c1e8fa9c-4b8d-487a-a1a5-2b148ee9d2d1", "IgnisTech Solutions", "Smart Oven", "Ember Heat 3000")
-tempSensor = Sensor("4d8b1d62-7921-4917-9b70-bbd31f6e2e8e", "AetherCorp", "Temperature Sensor", "SmartTemp 42")
+tempSensor = Sensor("4d8b1d62-7921-4917-9b70-bbd31f6e2e8e", "AetherCorp", "Temperature Sensor", "SmartTemp 42", unit="°C")
 AQS = Sensor("7c6e35e1-2d8b-4d81-a586-5d01a03bb02c", "CelestialSense Technologies", "Air Quality Sensor", "AeroGuard Pro")
 smartPlug = Sensor("1a66c3d6-22b2-446e-bf5c-eb5b9d1a8c79", "MysticEnergy Innovations", "Smart Plug", "FlowState X")
 dehumifier = Actuator("9e5b8274-4e77-4e4e-80d2-b40d648ea02a", "ArcaneTech Solutions", "Dehumidifier", "Hydra Dry 8000")
@@ -51,3 +51,4 @@ DEMO_HOUSE.register_device(gR2, bulp)
 DEMO_HOUSE.register_device(gR3, AQS)
 DEMO_HOUSE.register_device(MasterBed, tempSensor)
 DEMO_HOUSE.register_device(MasterBed, smartOven2)
+
