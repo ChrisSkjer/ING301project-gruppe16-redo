@@ -27,9 +27,13 @@ class Sensor(Device):
     def __init__(self, id, supplier, device_type, model_name, room = None, name=None, unit = None) -> None:
         super().__init__(id, supplier, device_type, model_name, room, name)
         self.unit = unit
+        self.measurments = []
+        self.last_measurment = None
 
     def is_sensor(self):
         return True
+    
+    
     
 class Actuator(Device):
     def __init__(self, id, supplier, device_type, model_name, actuator_state: bool = False, room = None, name=None) -> None:
@@ -42,8 +46,11 @@ class Actuator(Device):
     def turn_on(self):
         self.actuator_state = True
 
-    def turn_of(self):
+    def turn_off(self):
         self.actuator_state = False
+
+    def is_active(self):
+        return self.actuator_state
 
 class ActuatorWithSensor(Device):
     def __init__(self, id, supplier, device_type, model_name, actuator_state: bool = False, room = None, name=None, unit = None) -> None:
@@ -57,8 +64,9 @@ class ActuatorWithSensor(Device):
     def is_actuator(self):
         return True
     
-    def turn_on(self):
-        self.actuator_state = True
+    def turn_on(self, target_value = None):
+        if target_value is None:
+            self.actuator_state = True
 
     def turn_of(self):
         self.actuator_state = False
@@ -159,6 +167,9 @@ class SmartHouse:
         """
         This methods registers a given device in a given room.
         """
+        old_room = device.room
+        if old_room:
+            old_room.devices.remove(device)
         device.room = room
         room.register_device(device)
 
@@ -180,7 +191,7 @@ class SmartHouse:
         """
         This method retrieves a device object via its id.
         """
-        devices = self.get_devices
+        devices = self.get_devices()
         the_device = None
 
         for device in devices:
