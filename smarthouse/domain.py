@@ -1,3 +1,6 @@
+from datetime import datetime
+from random import random
+
 class Measurement:
     """
     This class represents a measurement taken from a sensor.
@@ -36,7 +39,7 @@ class Sensor(Device):
         if len(self.measurments) > 0:
             return self.measurments[-1]
         else:
-            return None
+            return Measurement(datetime.now().isoformat(), random() * 10, self.unit)
     
     
 class Actuator(Device):
