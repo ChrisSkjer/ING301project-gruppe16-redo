@@ -128,12 +128,12 @@ class SmartHouse:
         self.floors.append(floor)
         return floor
 
-    def register_room(self, floor: Floor, room_size, room_name = None):
+    def register_room(self, floor: Floor, room_size, room_name = None, rid = None):
         """
         This methods registers a new room with the given room areal size 
         at the given floor. Optionally the room may be assigned a mnemonic name.
         """
-        room = Room(room_size, floor, room_name)
+        room = Room(room_size, floor, room_name, rid)
         floor.rooms.append(room)
         
         return room

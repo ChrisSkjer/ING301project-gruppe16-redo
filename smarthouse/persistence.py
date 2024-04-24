@@ -1,6 +1,6 @@
 import sqlite3
 from typing import Optional
-from smarthouse.domain import Measurement
+from smarthouse.domain import Measurement, SmartHouse, Room, Floor, Sensor, Actuator,ActuatorWithSensor, Device
 
 class SmartHouseRepository:
     """
@@ -38,6 +38,57 @@ class SmartHouseRepository:
         """
         # TODO: START here! remove the following stub implementation and implement this function 
         #       by retrieving the data from the database via SQL `SELECT` statements.
+
+        house = SmartHouse()
+        c = self.cursor()
+        
+        
+
+        #Creating floors
+        c.execute("SELECT MAX(floor) from rooms;")
+        no_floors = c.fetchone()[0]
+        floors = []
+        for i in range(0, no_floors):
+            floors.append(house.register_floor(i + 1))
+
+        #Creating rooms
+        room_dict = {}
+        c.execute("SELECT floor, area, name, id from rooms;")
+        rooms = c.fetchall()
+        for room_tuple in rooms:
+            floor = floors[int(room_tuple[0])-1]
+            area = float(room_tuple[1])
+            room_name = room_tuple[2]
+            rid = room_tuple[3]
+            room = house.register_room(floor, area, room_name, rid)
+            room_dict[rid] = room
+
+        #Creating devices
+        c.execute("SELECT id, room, kind, category, supplier , product FROM devices;")
+        device_tuples = c.fetchall()
+        
+
+        for device_tuple in device_tuples:
+            room = room_dict[device_tuple[1]]
+            category = device_tuple[3]
+            did = device_tuple[0]
+            supplier = device_tuple[4]
+            device_type = device_tuple[2]
+            model_name = device_tuple[5]
+
+
+            if category == "sensor":
+                device = Sensor(did, supplier, device_type, model_name)
+                
+            elif category == "actuator":
+                device = Actuator(did, supplier, device_type, model_name)
+               
+            else: 
+                device = ActuatorWithSensor(did, supplier, device_type, model_name)
+               
+            house.register_device(room, device)
+    
+        c.close()
         return NotImplemented
 
 
