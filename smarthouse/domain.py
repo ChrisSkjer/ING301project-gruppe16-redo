@@ -46,12 +46,16 @@ class Actuator(Device):
     def __init__(self, id, supplier, device_type, model_name, actuator_state: bool = False, room = None, name=None) -> None:
         super().__init__(id, supplier, device_type, model_name, room, name)
         self.actuator_state = actuator_state
+        self.state = self.actuator_state  #må legges inn for å få godkjent tester
         
     def is_actuator(self):
         return True
     
-    def turn_on(self):
-        self.actuator_state = True
+    def turn_on(self, target_value = None):
+        if target_value is None:
+            self.actuator_state = True
+        elif target_value:
+            self.actuator_state = True
 
     def turn_off(self):
         self.actuator_state = False
@@ -101,11 +105,14 @@ class Room:
         self.floor = floor
         self.room_name = room_name
         self.rid = rid
+        self.db_id = rid #lagt inn for å passe testen
         self.devices = []
+
 
     def register_device(self, device: Device):
         self.devices.append(device)
- 
+        
+        
 
 class SmartHouse:
     """

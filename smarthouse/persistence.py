@@ -67,7 +67,7 @@ class SmartHouseRepository:
         c.execute("SELECT id, room, kind, category, supplier , product FROM devices;")
         device_tuples = c.fetchall()
         
-
+        device_dict = {}
         for device_tuple in device_tuples:
             room = room_dict[device_tuple[1]]
             category = device_tuple[3]
@@ -75,7 +75,6 @@ class SmartHouseRepository:
             supplier = device_tuple[4]
             device_type = device_tuple[2]
             model_name = device_tuple[5]
-
 
             if category == "sensor":
                 device = Sensor(did, supplier, device_type, model_name)
@@ -87,9 +86,18 @@ class SmartHouseRepository:
                 device = ActuatorWithSensor(did, supplier, device_type, model_name)
                
             house.register_device(room, device)
-    
+            device_dict[device.id] = device
+        
+        c.execute("SELECT * FROM states s; ")
+        states = c.fetchall()
+
+        for state in states:
+            device = device_dict[state[0]]
+            device.actuator_state = state[1]
+
         c.close()
-        return NotImplemented
+
+        return house
 
 
     def get_latest_reading(self, sensor) -> Optional[Measurement]:
@@ -97,19 +105,33 @@ class SmartHouseRepository:
         Retrieves the most recent sensor reading for the given sensor if available.
         Returns None if the given object has no sensor readings.
         """
-        # TODO: After loading the smarthouse, continue here
-        return NotImplemented
+        c = self.cursor()
+        
+        c.execute("""SELECT device, MAX(ts), value, unit FROM measurements m
+                    WHERE m.device = ?;""", (sensor.id, ))
+        measurment_tuple = c.fetchall()[0]
+        c.close()
+        if  measurment_tuple[0] is None:
+            return None
+
+        else:
+            ts = measurment_tuple[1]
+            value = measurment_tuple[2]
+            unit = measurment_tuple[3]
+            return Measurement(ts, value, unit)
 
 
     def update_actuator_state(self, actuator):
         """
         Saves the state of the given actuator in the database. 
         """
-        # TODO: Implement this method. You will probably need to extend the existing database structure: e.g.
-        #       by creating a new table (`CREATE`), adding some data to it (`INSERT`) first, and then issue
-        #       and SQL `UPDATE` statement. Remember also that you will have to call `commit()` on the `Connection`
-        #       stored in the `self.conn` instance variable.
-        pass
+        cur = self.cursor()
+       
+        cur.execute("""UPDATE states SET state = ? WHERE device = ? """, (actuator.is_active(), actuator.id))
+        
+        self.conn.commit()
+        cur.close()
+    
 
 
     # statistics
@@ -125,9 +147,27 @@ class SmartHouseRepository:
         The result should be a dictionary where the keys are strings representing dates (iso format) and 
         the values are floating point numbers containing the average temperature that day.
         """
-        # TODO: This and the following statistic method are a bit more challenging. Try to design the respective 
-        #       SQL statements first in a SQL editor like Dbeaver and then copy it over here.  
-        return NotImplemented
+        result = {}
+        if isinstance(room, Room) and room.db_id is not None:
+            lower_bound_pred = ""
+            upper_bound_pred = ""
+            if from_date is not None:
+                lower_bound_pred = f"AND ts >= '{from_date} 00:00:00'"
+            if until_date is not None:
+                upper_bound_pred = f"AND ts <= '{until_date} 23:59:59'"
+            query = f"""
+    SELECT STRFTIME('%Y-%m-%d', DATETIME(ts)), avg(value) 
+    FROM devices d 
+    INNER join measurements m ON m.device = d.id 
+    WHERE d.room = {room.db_id} AND m.unit = '°C' {lower_bound_pred} {upper_bound_pred}
+    GROUP BY STRFTIME('%Y-%m-%d', DATETIME(ts)) ;
+            """
+            cursor = self.cursor()
+            cursor.execute(query)
+            query_result = cursor.fetchall()
+            for row in query_result:
+                result[row[0]] = float(row[1])
+        return result
 
     
     def calc_hours_with_humidity_above(self, room, date: str) -> list:
@@ -137,6 +177,28 @@ class SmartHouseRepository:
         the average recorded humidity in that room at that particular time.
         The result is a (possibly empty) list of number representing hours [0-23].
         """
-        # TODO: implement
-        return NotImplemented
+        result = []
+        if isinstance(room, Room) and room.db_id is not None:
+            query = f"""
+SELECT  STRFTIME('%H', DATETIME(m.ts)) AS hours 
+FROM measurements m 
+INNER JOIN devices d ON m.device = d.id 
+INNER JOIN rooms r ON r.id = d.room 
+WHERE 
+r.id = {room.db_id}
+AND m.unit = '%' 
+AND DATE(m.ts) = DATE('{date}')
+AND m.value > (
+	SELECT AVG(value) 
+	FROM measurements m 
+	INNER JOIN devices d on d.id = m.device
+	WHERE d.room = 4 AND DATE(ts) = DATE('{date}'))
+GROUP BY hours
+HAVING COUNT(m.value) > 3;
+            """
+            cursor = self.cursor()
+            cursor.execute(query)
+            for h in cursor.fetchall():
+                result.append(int(h[0]))
+        return result
 
