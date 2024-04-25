@@ -1,15 +1,14 @@
 from datetime import datetime
 from random import random
+from pydantic import BaseModel
 
-class Measurement:
+class Measurement(BaseModel):
     """
     This class represents a measurement taken from a sensor.
     """
-
-    def __init__(self, timestamp, value, unit):
-        self.timestamp = timestamp
-        self.value = value
-        self.unit = unit
+    timestamp: str 
+    value: float 
+    unit: str | None
 
 class Device:
     def __init__(self, id, supplier, device_type, model_name, room = None, name = None) -> None:

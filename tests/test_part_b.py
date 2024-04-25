@@ -134,7 +134,5 @@ class SmartHouseTest(unittest.TestCase):
             self.assertAlmostEqual(expected3[k], actual3[k], 3)
 
 
-
-
 if __name__ == '__main__':
     unittest.main()
