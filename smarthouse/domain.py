@@ -45,7 +45,7 @@ class Actuator(Device):
     def __init__(self, id, supplier, device_type, model_name, actuator_state: bool = False, room = None, name=None) -> None:
         super().__init__(id, supplier, device_type, model_name, room, name)
         self.actuator_state = actuator_state
-        self.state = self.actuator_state  #må legges inn for å få godkjent tester
+        self.state = actuator_state  #må legges inn for å få godkjent tester
         
     def is_actuator(self):
         return True
@@ -53,11 +53,14 @@ class Actuator(Device):
     def turn_on(self, target_value = None):
         if target_value is None:
             self.actuator_state = True
+            self.state = True
         elif target_value:
             self.actuator_state = True
+            self.state = True
 
     def turn_off(self):
         self.actuator_state = False
+        self.state = False
 
     def is_active(self):
         return self.actuator_state
