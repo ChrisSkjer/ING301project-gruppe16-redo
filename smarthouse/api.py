@@ -1,6 +1,6 @@
 from typing import Literal
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -49,7 +49,7 @@ class RoomInfo(BaseModel):
     def from_obj(room: Room):
         return RoomInfo(
             rid=room.db_id,
-            room_size=room.room_size,
+            room_size=room.area,
             floor=room.floor.level,
             room_name=room.room_name,
             devices=[d.id for d in room.devices]
@@ -190,10 +190,10 @@ def add_sensor_measurement(uuid: str, measurement: Measurement) -> Response:
 
 
 @app.get("/smarthouse/sensor/{uuid}/values")
-def get_measurements(uuid: str, n: int | None = None) -> Response:
+def get_measurements(uuid: str, limit: int | None = Query(None)) -> Response:
     device = smarthouse.get_device_by_id(uuid)
     if device and device.is_sensor():
-        result = repo.get_readings(uuid, n)
+        result = repo.get_readings(uuid, limit)
         return JSONResponse(content=jsonable_encoder(result), status_code=200)
     else:
         return JSONResponse(content=jsonable_encoder({'reason': 'sensor with uuid not found'}), status_code=404)

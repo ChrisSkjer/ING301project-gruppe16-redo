@@ -22,8 +22,7 @@ class Device:
     def is_sensor(self):
         return False
     
-    def is_actuator(self):
-        return False
+    
 
 class Sensor(Device):
     def __init__(self, id, supplier, device_type, model_name, room = None, name=None, unit = None) -> None:
@@ -31,8 +30,11 @@ class Sensor(Device):
         self.unit = unit
         self.measurments = []
         
-    def is_sensor(self):
+    def is_sensor(self) -> bool:
         return True
+    
+    def is_actuator(self):
+        return False
     
     def last_measurement(self):
         if len(self.measurments) > 0:
@@ -49,6 +51,9 @@ class Actuator(Device):
         
     def is_actuator(self):
         return True
+    
+    def is_sensor(self):
+        return False
     
     def turn_on(self, target_value = None):
         if target_value is None:
@@ -208,7 +213,7 @@ class SmartHouse:
         return devices
         
 
-    def get_device_by_id(self, device_id):
+    def get_device_by_id(self, device_id: str) -> Device:
         """
         This method retrieves a device object via its id.
         """

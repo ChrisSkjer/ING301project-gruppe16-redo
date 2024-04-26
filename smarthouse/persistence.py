@@ -101,6 +101,7 @@ class SmartHouseRepository:
     
     def get_readings(self, sensor: str, limit_n: int | None) -> list[Measurement]:
         cursor = self.cursor()
+
         if limit_n:
             cursor.execute("""\
 SELECT ts, value, unit 
@@ -108,7 +109,7 @@ FROM measurements
 WHERE device = ?
 ORDER BY datetime(ts) DESC 
 LIMIT ?
-            """, (sensor, limit_n))
+            """, (sensor, int(limit_n)))
         else:
             cursor.execute("""\
 SELECT ts, value, unit 
@@ -173,7 +174,7 @@ INSERT INTO measurements (device, ts, value, unit) VALUES (?, ?, ?, ?)
             ts = measurment_tuple[1]
             value = measurment_tuple[2]
             unit = measurment_tuple[3]
-            return Measurement(ts, value, unit)
+            return Measurement(timestamp=ts, value=value, unit=unit)
 
 
     def update_actuator_state(self, actuator):

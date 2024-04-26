@@ -1,0 +1,19 @@
+meta {
+  name: add measurement
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://127.0.0.1:8000/smarthouse/sensor/3d87e5c0-8716-4b0b-9c67-087eaaed7b45/current
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "timestamp": "2024-01-27 06:03:01",
+    "value": 55.2966,
+    "unit": "%"
+  }
+}
