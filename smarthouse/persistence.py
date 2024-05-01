@@ -175,7 +175,7 @@ INSERT INTO measurements (device, ts, value, unit) VALUES (?, ?, ?, ?)
             value = measurment_tuple[2]
             unit = measurment_tuple[3]
             return Measurement(timestamp=ts, value=value, unit=unit)
-
+        
 
     def update_actuator_state(self, actuator):
         """

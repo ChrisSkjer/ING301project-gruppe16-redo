@@ -219,15 +219,15 @@ def get_sensor_state(uuid: str) -> Response:
         return JSONResponse(content=jsonable_encoder({'reason': 'actuator with uuid not found'}), status_code=404)
 
 
-@app.put("/smarthouse/actuator/{uuid}/")
+@app.put("/smarthouse/actuator/{uuid}")
 def update_sensor_state(uuid: str, target_state: ActuatorStateInfo) -> Response:
     device = smarthouse.get_device_by_id(uuid)
     if device and isinstance(device, Actuator):
         if isinstance(target_state.state, float):
             device.turn_on(target_state.state)
-        elif target_state.state == "running":
+        elif target_state.state == "running" or target_state.state == "on":
             device.turn_on()
-        elif target_state.state == "off":
+        elif target_state.state == "off" or target_state.state == "Off":
             device.turn_off()
         # else leave unchanged
         repo.update_actuator_state(device)
